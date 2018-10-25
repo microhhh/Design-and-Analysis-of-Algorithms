@@ -48,13 +48,13 @@ def crop_r(img, scale_r):
 
 def carve_column(img):
     width, height, _ = img.shape
-    M, backtrack = minimum_seam(img)
+    M, solution = minimum_seam(img)
     mask = np.ones((width, height), dtype=np.bool)
 
     j = np.argmin(M[-1])
     for i in reversed(range(width)):
         mask[i, j] = False
-        j = backtrack[i, j]
+        j = solution[i, j]
 
     mask = np.stack([mask] * 3, axis=2)
     img = img[mask].reshape((width, height - 1, 3))
@@ -64,23 +64,23 @@ def minimum_seam(img):
     width, height, _ = img.shape
     energy_map = calc_energy(img)
     M = energy_map.copy()
-    backtrack = np.zeros_like(M, dtype=np.int)
+    solution = np.zeros_like(M, dtype=np.int)
 
     #dynamic programming with M(i,j)
     for i in range(1, width):
         for j in range(0, height):
             if j == 0:
                 offset = np.argmin(M[i - 1, j:j + 2])
-                backtrack[i, j] = offset + j
+                solution[i, j] = offset + j
                 min_energy = M[i - 1, offset + j]
             else:
                 offset = np.argmin(M[i - 1, j - 1:j + 2])
-                backtrack[i, j] = offset + j - 1
+                solution[i, j] = offset + j - 1
                 min_energy = M[i - 1, offset + j - 1]
 
             M[i, j] += min_energy
 
-    return M, backtrack
+    return M, solution
 
 if __name__ == '__main__':
 
