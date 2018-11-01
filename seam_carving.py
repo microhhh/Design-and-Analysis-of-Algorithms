@@ -6,7 +6,7 @@ from scipy.ndimage.filters import convolve
 
 
 def calc_energy(img):
-    #Sobel filter for horizontal
+    # Sobel filter for horizontal
     filter_du = np.array([
         [1.0, 2.0, 1.0],
         [0.0, 0.0, 0.0],
@@ -15,7 +15,7 @@ def calc_energy(img):
     # 3D horizontal filter for each channel: R, G, B
     filter_du = np.stack([filter_du] * 3, axis=2)
 
-    #Sobel filter for Vertical
+    # Sobel filter for Vertical
     filter_dv = np.array([
         [1.0, 0.0, -1.0],
         [2.0, 0.0, -2.0],
@@ -31,6 +31,7 @@ def calc_energy(img):
     energy_map = convolved.sum(axis=2)
     return energy_map
 
+
 def crop_c(img, scale_c):
     r, c, _ = img.shape
     new_c = int(scale_c * c)
@@ -40,11 +41,13 @@ def crop_c(img, scale_c):
 
     return img
 
+
 def crop_r(img, scale_r):
     img = np.rot90(img, 1)
     img = crop_c(img, scale_r)
     img = np.rot90(img, -1)
     return img
+
 
 def carve_column(img):
     width, height, _ = img.shape
@@ -60,13 +63,14 @@ def carve_column(img):
     img = img[mask].reshape((width, height - 1, 3))
     return img
 
+
 def minimum_seam(img):
     width, height, _ = img.shape
     energy_map = calc_energy(img)
     M = energy_map.copy()
     solution = np.zeros_like(M, dtype=np.int)
 
-    #dynamic programming with M(i,j)
+    # dynamic programming with M(i,j)
     for i in range(1, width):
         for j in range(0, height):
             if j == 0:
@@ -82,8 +86,8 @@ def minimum_seam(img):
 
     return M, solution
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     in_filename = sys.argv[1]
     out_filename = sys.argv[2]
     scale = 0.5
