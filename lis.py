@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-import sys
 from PyQt5.QtWidgets import *
+import sys
 import math
+import time
 
 
 class Ui_MainWindow(object):
@@ -43,7 +44,15 @@ class Ui_MainWindow(object):
 
     def start(self):
         array = self.textEdit.toPlainText().split()
-        result = self.cal_lis(array)
+        sequence = []
+        for i in array:
+            sequence.append(int(i))
+
+        result_int = self.find_lis(sequence)
+
+        result = []
+        for i in result_int:
+            result.append(str(i))
         self.textEdit_2.setPlainText(" ".join(result))
         return
 
@@ -54,35 +63,37 @@ class Ui_MainWindow(object):
                 high = mid
             else:
                 low = mid + 1
-        return low
+        return (low)
 
-    def cal_lis(self, array):
+    def find_lis(self, array):
         L = []
-        substrtail = [0] * len(array)
+        subtail = [0] * len(array)
         for i in range(len(array)):
             rank = self.binsearch(L, array[i], 0, len(L))
+
             if rank == 0:
                 if len(L) == 0:
                     L.append(array[i])
                 else:
                     L[rank] = array[i]
-                substrtail[i] = rank + 1
+                subtail[i] = rank + 1
             elif rank == len(L):
                 if L[rank - 1] < array[i]:
                     L.append(array[i])
-                    substrtail[i] = rank + 1
+                    subtail[i] = rank + 1
                 else:
-                    substrtail[i] = rank
+                    subtail[i] = rank
             elif L[rank - 1] < array[i]:
                 L[rank] = array[i]
-                substrtail[i] = rank + 1
+                subtail[i] = rank + 1
             else:
-                substrtail[i] = rank
+                subtail[i] = rank
 
         chain = 1
         substr = []
-        for i in range(len(substrtail)):
-            if substrtail[i] == chain:
+
+        for i in range(len(subtail)):
+            if subtail[i] == chain:
                 substr.append(array[i])
                 chain += 1
 
